@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Los Candela — Chicha Psicodélica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #0D0904;
+    --gold: #D4A017;
+    --orange: #E8601C;
+    --red: #C2321A;
+    --teal: #2A9B7A;
+    --cream: #F0E6C8;
+    --purple: #8B3FA8;
+    --dark2: #1A1208;
+    --dark3: #221A08;
+    --muted: rgba(240,230,200,0.4);
+    --muted2: rgba(240,230,200,0.55);
+    --muted3: rgba(240,230,200,0.7);
+    --cursor-blend: screen;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease, background 0.3s ease;
+    mix-blend-mode: var(--cursor-blend);
+    will-change: transform;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.18s ease, border-color 0.3s ease;
+    mix-blend-mode: var(--cursor-blend);
+    will-change: transform;
+  }
+
+  .zigzag-divider { width: 100%; overflow: hidden; line-height: 0; }
+
+  @keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+  @keyframes psychedelic-hue {
+    0%   { filter: hue-rotate(0deg) brightness(1); }
+    25%  { filter: hue-rotate(20deg) brightness(1.05); }
+    50%  { filter: hue-rotate(-15deg) brightness(0.95); }
+    75%  { filter: hue-rotate(30deg) brightness(1.08); }
+    100% { filter: hue-rotate(0deg) brightness(1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px 4px rgba(212,160,23,0.3); }
+    50% { box-shadow: 0 0 50px 12px rgba(232,96,28,0.5); }
+  }
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.4; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes particle-drift {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.8; }
+    100% { transform: translateY(-120vh) translateX(var(--dx)) scale(0.2); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(13,9,4,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212,160,23,0.2);
+    transition: background 0.4s;
+  }
+  [data-theme="day"] nav.scrolled {
+    background: rgba(255,248,237,0.95);
+    border-bottom-color: rgba(155,110,0,0.2);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .nav-logo span { color: var(--cream); font-family: 'Caveat', cursive; font-size: 1rem; display: block; line-height: 0.8; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    transition: opacity 0.2s, color 0.2s;
+    cursor: pointer;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--gold); }
+  .nav-links a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
+
+  /* Nav controls */
+  .nav-controls { display: flex; align-items: center; gap: 0.5rem; }
+  .nav-pill {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid rgba(240,230,200,0.2);
+    background: transparent;
+    color: rgba(240,230,200,0.5);
+    cursor: pointer;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .nav-pill:hover { color: var(--gold); border-color: var(--gold); }
+  .nav-pill:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .nav-pill.active {
+    background: rgba(212,160,23,0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .nav-divider {
+    width: 1px; height: 14px;
+    background: rgba(240,230,200,0.15);
+    margin: 0 0.25rem;
+  }
+  [data-theme="day"] .nav-pill { color: rgba(26,14,0,0.4); border-color: rgba(26,14,0,0.15); }
+  [data-theme="day"] .nav-pill:hover { color: var(--gold); border-color: var(--gold); }
+  [data-theme="day"] .nav-pill.active { background: rgba(155,110,0,0.12); border-color: var(--gold); color: var(--gold); }
+  [data-theme="day"] .nav-divider { background: rgba(26,14,0,0.15); }
+
+  /* Hamburger button */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 44px; height: 44px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    z-index: 201;
+    position: relative;
+  }
+  .nav-hamburger:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+  .hamburger-bar {
+    width: 22px; height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, width 0.3s ease;
+    transform-origin: center;
+  }
+  .nav-hamburger[aria-expanded="true"] .hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger[aria-expanded="true"] .hamburger-bar:nth-child(2) { opacity: 0; width: 0; }
+  .nav-hamburger[aria-expanded="true"] .hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Full-page menu overlay */
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    transform: translateY(-100%);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .menu-overlay.open { transform: translateY(0); }
+  [data-theme="day"] .menu-overlay { background: #FFF8ED; }
+
+  /* Overlay top bar (mirrors nav) */
+  .menu-overlay-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2rem;
+    flex-shrink: 0;
+  }
+
+  /* Overlay decorative gradient */
+  .menu-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(212,160,23,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(139,63,168,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  [data-theme="day"] .menu-overlay::before {
+    background: radial-gradient(ellipse at 80% 20%, rgba(212,160,23,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(200,78,10,0.06) 0%, transparent 60%);
+  }
+
+  /* Overlay nav links */
+  .menu-overlay-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+  }
+  .menu-overlay-link {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 14vw, 5.5rem);
+    letter-spacing: 0.04em;
+    color: var(--cream);
+    text-decoration: none;
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: color 0.2s, opacity 0.35s ease, transform 0.35s ease;
+    cursor: pointer;
+  }
+  .menu-overlay.open .menu-overlay-link {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .menu-overlay.open .menu-overlay-link:nth-child(1) { transition-delay: 0.08s; }
+  .menu-overlay.open .menu-overlay-link:nth-child(2) { transition-delay: 0.13s; }
+  .menu-overlay.open .menu-overlay-link:nth-child(3) { transition-delay: 0.18s; }
+  .menu-overlay.open .menu-overlay-link:nth-child(4) { transition-delay: 0.23s; }
+  .menu-overlay.open .menu-overlay-link:nth-child(5) { transition-delay: 0.28s; }
+  .menu-overlay-link:hover { color: var(--gold); }
+  .menu-overlay-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
+  [data-theme="day"] .menu-overlay-link { color: #1A0E00; }
+
+  /* Overlay bottom controls */
+  .menu-overlay-footer {
+    flex-shrink: 0;
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease 0.35s;
+  }
+  .menu-overlay.open .menu-overlay-footer { opacity: 1; }
+  .menu-overlay-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .menu-overlay-pill {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(240,230,200,0.25);
+    background: transparent;
+    color: rgba(240,230,200,0.5);
+    cursor: pointer;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    min-height: 44px;
+    min-width: 60px;
+  }
+  .menu-overlay-pill:hover { color: var(--gold); border-color: var(--gold); }
+  .menu-overlay-pill.active { background: rgba(212,160,23,0.15); border-color: var(--gold); color: var(--gold); }
+  .menu-overlay-pill:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  [data-theme="day"] .menu-overlay-pill { color: rgba(26,14,0,0.45); border-color: rgba(26,14,0,0.18); }
+  [data-theme="day"] .menu-overlay-pill.active { background: rgba(155,110,0,0.12); border-color: var(--gold); color: var(--gold); }
+  .menu-overlay-divider { width: 1px; height: 18px; background: rgba(240,230,200,0.15); margin: 0 0.25rem; }
+  [data-theme="day"] .menu-overlay-divider { background: rgba(26,14,0,0.15); }
+
+  /* Zigzag deco in overlay */
+  .menu-zz { position: relative; z-index: 1; flex-shrink: 0; }
+
+  @media (max-width: 768px) {
+    .nav-controls { display: none; }
+    .nav-hamburger { display: flex; }
+    .nav-links { display: none; }
+  }
+  @media (min-width: 769px) {
+    .menu-overlay { display: none; }
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 60%, #2a1800 0%, #0D0904 65%);
+  }
+  .hero-particles { position: absolute; inset: 0; pointer-events: none; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: particle-drift linear infinite;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    width: 100%;
+    max-width: 900px;
+    padding: 0 2rem;
+  }
+  .hero-los {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: var(--gold);
+    display: block;
+    letter-spacing: 0.05em;
+    margin-bottom: -0.5rem;
+    animation: float 5s ease-in-out infinite;
+  }
+  .hero-candela {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 6rem);
+    white-space: nowrap;
+    overflow: visible;
+    padding-right: 0.5em;
+    line-height: 0.85;
+    letter-spacing: -0.01em;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 40%, var(--red) 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: psychedelic-hue 8s ease-in-out infinite;
+    text-shadow: none;
+    display: block;
+  }
+  .hero-sub {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.1rem, 3vw, 2rem);
+    color: var(--teal);
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+    animation: flicker 6s ease-in-out infinite;
+  }
+  .hero-location {
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(240,230,200,0.4);
+    margin-top: 1.5rem;
+  }
+  .hero-cta-group {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+  .btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    padding: 0.85rem 2.2rem;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.15s, box-shadow 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .btn:hover { transform: translateY(-3px); }
+  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .btn:active { transform: translateY(0); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    color: #0D0904;
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--cream);
+    border: 1.5px solid rgba(240,230,200,0.3);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Animated zigzag runner */
+  .zz-runner {
+    width: 100%;
+    overflow: hidden;
+    height: 24px;
+    position: relative;
+  }
+  .zz-runner-inner {
+    display: flex;
+    width: 200%;
+    animation: marquee 8s linear infinite;
+  }
+
+  /* SECTIONS */
+  section { padding: 6rem 2rem; }
+  .section-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    color: var(--cream);
+  }
+  .section-title span { color: var(--orange); }
+  .max-w { max-width: 1100px; margin: 0 auto; }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    margin-top: 4rem;
+  }
+  .about-text p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--muted3);
+    margin-bottom: 1.2rem;
+  }
+  .about-text p strong { color: var(--cream); font-weight: 500; }
+  .about-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* SHOWS */
+  .shows-bg {
+    background: var(--dark2);
+    position: relative;
+  }
+  .shows-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 3rem;
+  }
+  .show-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.6rem 0;
+    border-bottom: 1px solid rgba(128,100,50,0.12);
+    transition: background 0.2s, padding-left 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .show-row::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0; bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212,160,23,0.06), transparent);
+    transition: left 0.4s;
+  }
+  .show-row:hover::before { left: 100%; }
+  .show-row:hover { padding-left: 1rem; }
+  .show-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .show-date {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    line-height: 1.2;
+  }
+  .show-date span { display: block; font-size: 0.75rem; letter-spacing: 0.15em; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .show-info h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.05em;
+    color: var(--cream);
+  }
+  .show-info p { font-size: 0.82rem; color: var(--muted2); margin-top: 0.2rem; }
+  .show-tag {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.9rem;
+    border: 1px solid;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .tag-sold { border-color: var(--red); color: var(--red); }
+  .tag-tickets { border-color: var(--teal); color: var(--teal); cursor: pointer; transition: background 0.2s, color 0.2s; }
+  .tag-tickets:hover { background: var(--teal); color: var(--bg); }
+
+  /* SOUND */
+  .sound-section {
+    background: linear-gradient(180deg, #0D0904 0%, #150E05 50%, #0D0904 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .sound-orbs { position: absolute; inset: 0; pointer-events: none; }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.12;
+    animation: float ease-in-out infinite;
+    will-change: transform;
+  }
+  .sound-content { position: relative; z-index: 2; }
+  .sound-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 4rem;
+  }
+  .sound-card {
+    background: var(--dark2);
+    padding: 2.5rem 2rem;
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .sound-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--orange));
+    transition: width 0.4s ease;
+  }
+  .sound-card:hover::after { width: 100%; }
+  .sound-card:hover { background: #221A08; transform: translateY(-4px); }
+  .sound-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .sound-card-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 1rem;
+    display: block;
+    color: var(--gold);
+    animation: float 4s ease-in-out infinite;
+  }
+  .sound-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+  .sound-card p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--muted2);
+  }
+
+  /* MEMBERS */
+  .members-section { background: var(--dark3); }
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1px;
+    margin-top: 3rem;
+    background: rgba(240,230,200,0.06);
+  }
+  .member-card {
+    background: var(--dark3);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: background 0.25s;
+    cursor: pointer;
+  }
+  .member-card:hover { background: var(--dark2); }
+  .member-card:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .member-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    position: relative;
+  }
+  .member-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+  }
+  .member-role {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* CONTACT */
+  .contact-section {
+    background: var(--bg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-section::before {
+    content: 'CANDELA';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 25vw;
+    color: rgba(212,160,23,0.03);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .contact-inner { position: relative; z-index: 2; }
+  .contact-email {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+    display: inline-block;
+    margin-top: 2rem;
+    cursor: pointer;
+  }
+  .contact-email:hover { color: var(--orange); }
+
+  /* FOOTER */
+  footer {
+    background: #080503;
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(212,160,23,0.15);
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .footer-logo span { font-family: 'Caveat', cursive; font-size: 0.9rem; color: rgba(240,230,200,0.4); display: block; }
+  footer p { font-size: 0.7rem; color: rgba(240,230,200,0.25); letter-spacing: 0.1em; }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── DAY THEME ───────────────────────────────── */
+  [data-theme="day"] {
+    --bg: #FFF8ED;
+    --gold: #9B6E00;
+    --orange: #C84E0A;
+    --red: #A82010;
+    --teal: #1A7A5E;
+    --cream: #1A0E00;
+    --purple: #6E2F8A;
+    --dark2: #F5ECD5;
+    --dark3: #EDE0C4;
+    --muted: rgba(26,14,0,0.4);
+    --muted2: rgba(26,14,0,0.55);
+    --muted3: rgba(26,14,0,0.7);
+    --cursor-blend: multiply;
+  }
+  [data-theme="day"] body { background: #FFF8ED; color: #1A0E00; }
+  [data-theme="day"] .hero { background: radial-gradient(ellipse at 50% 60%, #FFE8B0 0%, #FFF8ED 65%); }
+  [data-theme="day"] .hero-location { color: rgba(26,14,0,0.4); }
+  [data-theme="day"] .hero-candela {
+    background: linear-gradient(135deg, #9B6E00 0%, #C84E0A 40%, #A82010 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  [data-theme="day"] .about-text p { color: rgba(26,14,0,0.7); }
+  [data-theme="day"] .about-text p strong { color: #1A0E00; }
+  [data-theme="day"] .shows-bg { background: #F5ECD5; }
+  [data-theme="day"] .show-row { border-bottom-color: rgba(26,14,0,0.1); }
+  [data-theme="day"] .show-info p { color: rgba(26,14,0,0.5); }
+  [data-theme="day"] .sound-section { background: linear-gradient(180deg, #FFF8ED 0%, #F5ECD5 50%, #FFF8ED 100%); }
+  [data-theme="day"] .sound-card { background: #F5ECD5; }
+  [data-theme="day"] .sound-card:hover { background: #EDE0C4; }
+  [data-theme="day"] .sound-card p { color: rgba(26,14,0,0.6); }
+  [data-theme="day"] .members-section { background: #EDE0C4; }
+  [data-theme="day"] .member-card { background: #EDE0C4; }
+  [data-theme="day"] .member-card:hover { background: #F5ECD5; }
+  [data-theme="day"] .member-role { color: rgba(26,14,0,0.4); }
+  [data-theme="day"] .contact-section { background: #FFF8ED; }
+  [data-theme="day"] .contact-section::before { color: rgba(155,110,0,0.05); }
+  [data-theme="day"] footer { background: #EDE0C4; border-top-color: rgba(155,110,0,0.25); }
+  [data-theme="day"] .footer-logo span { color: rgba(26,14,0,0.4); }
+  [data-theme="day"] footer p { color: rgba(26,14,0,0.3); }
+  [data-theme="day"] .section-title { color: #1A0E00; }
+  [data-theme="day"] .nav-links a { color: #1A0E00; }
+  [data-theme="day"] nav.scrolled { background: rgba(255,248,237,0.92); border-bottom-color: rgba(155,110,0,0.2); }
+  [data-theme="day"] .show-date span { color: rgba(26,14,0,0.4); }
+  [data-theme="day"] .show-info h3 { color: #1A0E00; }
+  [data-theme="day"] .members-grid { background: rgba(26,14,0,0.06); }
+
+  @media (max-width: 768px) {
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .sound-grid { grid-template-columns: 1fr; }
+    .show-row { grid-template-columns: 80px 1fr; }
+    .show-tag { display: none; }
+    .hero-candela { font-size: 22vw; }
+    nav { padding: 1rem 1.25rem; }
+    section { padding: 4rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="root"></div>
+
+<!-- Tweaks Panel (inlined from tweaks-panel.jsx) -->
+<script type="text/babel">
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;overflow-wrap:anywhere}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+</script>
+
+<!-- Main App -->
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ── Translations ──────────────────────────────────────────────────
+const COPY = {
+  es: {
+    nav: ['Sobre Nosotros','Shows','Sonido','Banda','Contacto'],
+    heroSub: 'Chicha Psicodélica',
+    heroLocation: 'Hobart, Tasmania · Lutruwita',
+    heroCta1: 'Próximos Shows',
+    heroCta2: 'La Banda',
+    aboutLabel: 'Quiénes Somos',
+    aboutTitle: ['Fuego del Sur,', 'Ritmo del Mundo'],
+    aboutP1: '<strong>Los Candela</strong> son una fuerza de la naturaleza — una banda de chicha psicodélica que hace arder el extremo sur del mundo. Desde las calles de <strong>Hobart, Tasmania</strong>, invocan los espíritus de Lima, Bogotá y más allá con un sonido que no pide permiso.',
+    aboutP2: 'Guitarras que vuelan, bajos que tiemblan, percusión que no da tregua. Los Candela mezclan la magia hipnótica de la <strong>cumbia psicodélica</strong> con la energía cruda de un sur que tiene mucho que decir.',
+    aboutP3: 'Si lo sientes en el pecho, lo estás escuchando bien.',
+    stats: [['~','Shows al año'],['∞','Energía en vivo'],['1','Hobart']],
+    showsLabel: 'Fechas 2026',
+    showsTitle: ['Próximos','Shows'],
+    tagSold: 'Agotado',
+    tagTickets: 'Entradas',
+    soundLabel: 'El Sonido',
+    soundTitle: ['Chicha desde','el Fin del Mundo'],
+    soundCards: [
+      { icon:'guitar', title:'Guitarra Wah', text:'Pedales que lloran, riffs que te persiguen hasta el amanecer. La guitarra de Los Candela es un diálogo entre el desierto andino y el viento del Antártico.' },
+      { icon:'drum', title:'Ritmo Sin Freno', text:'La percusión es el corazón de la chicha — sin pausa, sin disculpa. Congas, timbales y bombos construyen un trance del que no querés salir.' },
+      { icon:'keys', title:'Teclados del Espacio', text:'Órganos que flotan, sintetizadores que vibran en frecuencias que el oído apenas puede seguir. Psicodelia pura, a temperatura tropical.' },
+    ],
+    playerTitle: 'Fuego del Sur — Demo 2025',
+    bandLabel: 'La Banda',
+    bandTitle: ['Seis Almas,','Un Fuego'],
+    contactLabel: 'Contacto',
+    contactTitle: ['¿Querés','Contratarnos?'],
+    contactBody: 'Para bookings, entrevistas y colaboraciones, escribinos. Tocamos en fiestas, festivales, bodas y cualquier lugar que tenga energía.',
+    formName: 'Nombre',
+    formEmail: 'Email',
+    formMsg: 'Tu mensaje...',
+    formBtn: 'Enviar Mensaje',
+    formSuccess: '¡Mensaje Enviado!',
+    formSuccessSub: 'Te respondemos en 24-48 horas. ¡Fuego!',
+    alsoOn: 'También en',
+    footerSub: 'Chicha Psicodélica · Hobart, Tasmania',
+  },
+  en: {
+    nav: ['About','Shows','Sound','Band','Contact'],
+    heroSub: 'Psychedelic Chicha',
+    heroLocation: 'Hobart, Tasmania · Lutruwita',
+    heroCta1: 'Upcoming Shows',
+    heroCta2: 'The Band',
+    aboutLabel: 'Who We Are',
+    aboutTitle: ['Fire from the South,', 'Rhythm of the World'],
+    aboutP1: '<strong>Los Candela</strong> are a force of nature — a psychedelic chicha band setting the far south of the world on fire. From the streets of <strong>Hobart, Tasmania</strong>, they invoke the spirits of Lima, Bogotá and beyond with a sound that asks no permission.',
+    aboutP2: 'Guitars that soar, bass lines that shake the floor, percussion that never lets up. Los Candela blend the hypnotic magic of <strong>psychedelic cumbia</strong> with the raw energy of a south that has a lot to say.',
+    aboutP3: 'If you feel it in your chest, you\'re hearing it right.',
+    stats: [['~','Shows per year'],['∞','Live energy'],['1','Hobart']],
+    showsLabel: 'Dates 2026',
+    showsTitle: ['Upcoming','Shows'],
+    tagSold: 'Sold Out',
+    tagTickets: 'Tickets',
+    soundLabel: 'The Sound',
+    soundTitle: ['Chicha from','the End of the World'],
+    soundCards: [
+      { icon:'guitar', title:'Wah Guitar', text:'Pedals that cry, riffs that chase you till dawn. The Los Candela guitar is a dialogue between the Andean desert and the Antarctic wind.' },
+      { icon:'drum', title:'Relentless Rhythm', text:'Percussion is the heart of chicha — no pause, no apology. Congas, timbales and bass drums build a trance you never want to leave.' },
+      { icon:'keys', title:'Space Keys', text:'Floating organs, synths vibrating at frequencies the ear can barely follow. Pure psychedelia at tropical temperature.' },
+    ],
+    playerTitle: 'Fire from the South — Demo 2025',
+    bandLabel: 'The Band',
+    bandTitle: ['Six Souls,','One Fire'],
+    contactLabel: 'Contact',
+    contactTitle: ['Want to','Book Us?'],
+    contactBody: 'For bookings, interviews and collaborations, get in touch. We play parties, festivals, weddings and anywhere with good energy.',
+    formName: 'Name',
+    formEmail: 'Email',
+    formMsg: 'Your message...',
+    formBtn: 'Send Message',
+    formSuccess: 'Message Sent!',
+    formSuccessSub: 'We\'ll get back to you within 24-48 hours. Fire!',
+    alsoOn: 'Also on',
+    footerSub: 'Psychedelic Chicha · Hobart, Tasmania',
+  },
+};
+
+const TWEAK_DEFAULTS = {
+  "theme": "night",
+  "lang": "es"
+};
+
+// ── SVG Icons ─────────────────────────────────────────────────────
+function IconGuitar({ style }) {
+  return (
+    <svg style={style} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M27 6l6 6-2 2 1.5 1.5a3.5 3.5 0 01-4.95 4.95L26 19l-2 2c.5 1.5.5 3.5-1 5.5S18 30 16 31c-2 .8-4 2-5.5 3.5a2.5 2.5 0 01-3.5-3.5C8.5 29.5 9.7 27.5 10.5 25.5c1-2 3-4.5 5.5-6S21 18.5 22.5 19l2-2-1.5-1.5a3.5 3.5 0 014.95-4.95L29.5 12l2-2-4.5-4z" />
+      <circle cx="14" cy="30" r="2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function IconDrum({ style }) {
+  return (
+    <svg style={style} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <ellipse cx="22" cy="17" rx="14" ry="6" />
+      <path d="M8 17v10c0 3.3 6.3 6 14 6s14-2.7 14-6V17" />
+      <path d="M22 17v16" strokeOpacity="0.4" />
+      <path d="M28 8l4-5M16 8L12 3" />
+      <circle cx="30" cy="4" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="14" cy="4" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function IconKeys({ style }) {
+  return (
+    <svg style={style} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="14" width="34" height="20" rx="2" />
+      <path d="M12 14v12M19 14v12M26 14v12M33 14v12" strokeOpacity="0.4" />
+      <rect x="9" y="14" width="5" height="12" rx="1" fill="currentColor" stroke="none" opacity="0.8" />
+      <rect x="16" y="14" width="5" height="12" rx="1" fill="currentColor" stroke="none" opacity="0.8" />
+      <rect x="23" y="14" width="5" height="12" rx="1" fill="currentColor" stroke="none" opacity="0.8" />
+      <rect x="30" y="14" width="5" height="12" rx="1" fill="currentColor" stroke="none" opacity="0.8" />
+    </svg>
+  );
+}
+
+function SoundIcon({ name, style }) {
+  if (name === 'guitar') return <IconGuitar style={style} />;
+  if (name === 'drum') return <IconDrum style={style} />;
+  return <IconKeys style={style} />;
+}
+
+// ── Cursor ──────────────────────────────────────────────────
+function useCursor() {
+  useEffect(() => {
+    const dot = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    const colors = ['#D4A017','#E8601C','#2A9B7A','#8B3FA8','#C2321A'];
+    let colorIdx = 0;
+    const onMove = e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    };
+    const onDown = () => {
+      colorIdx = (colorIdx + 1) % colors.length;
+      dot.style.background = colors[colorIdx];
+      ring.style.borderColor = colors[colorIdx];
+    };
+    let raf;
+    const loop = () => {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousedown', onDown);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mousedown', onDown);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+}
+
+// ── Particles ────────────────────────────────────────────────────
+function Particles() {
+  const particles = useMemo(() => Array.from({length: 28}, (_, i) => ({
+    id: i,
+    color: ['#D4A017','#E8601C','#2A9B7A','#8B3FA8','#C2321A'][i % 5],
+    size: 2 + Math.random() * 4,
+    left: Math.random() * 100,
+    delay: Math.random() * 10,
+    duration: 8 + Math.random() * 12,
+    dx: (Math.random() - 0.5) * 200 + 'px',
+  })), []);
+  return (
+    <div className="hero-particles" aria-hidden="true">
+      {particles.map(p => (
+        <div key={p.id} className="particle" style={{
+          left: `${p.left}%`, bottom: '-10px',
+          width: p.size, height: p.size,
+          background: p.color,
+          animationDuration: `${p.duration}s`,
+          animationDelay: `${p.delay}s`,
+          '--dx': p.dx, opacity: 0.6,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// ── Zigzag ────────────────────────────────────────────────────
+function ZigzagBand({ color = '#D4A017', flip = false }) {
+  const pts = useMemo(() =>
+    Array.from({length: 61}, (_, i) => `${i * 34},${i % 2 === 0 ? 0 : 24}`).join(' '),
+    []
+  );
+  return (
+    <div className="zz-runner" aria-hidden="true" style={flip ? { transform:'scaleX(-1)' } : undefined}>
+      <div className="zz-runner-inner">
+        {[0,1].map(k => (
+          <svg key={k} width="2040" height="24" viewBox="0 0 2040 24" fill="none" style={{ display:'block', flexShrink:0 }}>
+            <polyline points={pts} stroke={color} strokeWidth="2.5" fill="none" />
+          </svg>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Sun Graphic ───────────────────────────────────────────────────
+function SunGraphic() {
+  const rays = Array.from({length: 16}, (_, i) => {
+    const angle = (i / 16) * 360, rad = angle * Math.PI / 180;
+    return { x1: 130 + 110 * Math.cos(rad), y1: 130 + 110 * Math.sin(rad), x2: 130 + 130 * Math.cos(rad), y2: 130 + 130 * Math.sin(rad) };
+  });
+  return (
+    <svg viewBox="0 0 260 260" style={{ width:'100%', height:'100%' }} aria-hidden="true">
+      <defs>
+        <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#F5D030" />
+          <stop offset="40%" stopColor="#E8601C" />
+          <stop offset="100%" stopColor="#C2321A" />
+        </radialGradient>
+        <radialGradient id="outerGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#D4A017" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#D4A017" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="130" cy="130" r="128" fill="url(#outerGrad)" />
+      {rays.map((r, i) => <line key={i} x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} stroke="#D4A017" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />)}
+      <circle cx="130" cy="130" r="90" fill="url(#sunGrad)" />
+      <circle cx="130" cy="130" r="55" fill="#F5D030" opacity="0.9" />
+      <text x="130" y="148" textAnchor="middle" fontFamily="'Bebas Neue', sans-serif" fontSize="34" fill="#0D0904" letterSpacing="2">CANDELA</text>
+    </svg>
+  );
+}
+
+// ── Nav ───────────────────────────────────────────────────────────
+function Nav({ t, theme, lang, onTheme, onLang }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const anchors = ['about','shows','sound','band','contact'];
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  // Lock body scroll when menu open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
+  // Close on Escape
+  useEffect(() => {
+    const onKey = e => { if (e.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  return (
+    <>
+      <nav className={scrolled ? 'scrolled' : ''} role="navigation" aria-label="Main navigation">
+        <a href="#top" className="nav-logo" onClick={closeMenu}><span>Los</span>CANDELA</a>
+        <ul className="nav-links">
+          {t.nav.map((l, i) => <li key={l}><a href={`#${anchors[i]}`}>{l}</a></li>)}
+        </ul>
+        <div className="nav-controls" role="group" aria-label="Theme and language controls">
+          <button className={`nav-pill${theme === 'night' ? ' active' : ''}`} onClick={() => onTheme('night')} aria-pressed={theme === 'night'}>
+            {lang === 'es' ? 'Noche' : 'Night'}
+          </button>
+          <button className={`nav-pill${theme === 'day' ? ' active' : ''}`} onClick={() => onTheme('day')} aria-pressed={theme === 'day'}>
+            {lang === 'es' ? 'Día' : 'Day'}
+          </button>
+          <div className="nav-divider" aria-hidden="true" />
+          <button className={`nav-pill${lang === 'es' ? ' active' : ''}`} onClick={() => onLang('es')} aria-pressed={lang === 'es'}>ES</button>
+          <button className={`nav-pill${lang === 'en' ? ' active' : ''}`} onClick={() => onLang('en')} aria-pressed={lang === 'en'}>EN</button>
+        </div>
+        <button
+          className="nav-hamburger"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-menu"
+          onClick={() => setMenuOpen(o => !o)}
+        >
+          <span className="hamburger-bar" />
+          <span className="hamburger-bar" />
+          <span className="hamburger-bar" />
+        </button>
+      </nav>
+
+      {/* Full-page mobile menu overlay */}
+      <div
+        id="mobile-menu"
+        className={`menu-overlay${menuOpen ? ' open' : ''}`}
+        aria-hidden={!menuOpen}
+        role="dialog"
+        aria-label="Navigation menu"
+      >
+        {/* Top bar */}
+        <div className="menu-overlay-top">
+          <a href="#top" className="nav-logo" onClick={closeMenu}><span>Los</span>CANDELA</a>
+          <button
+            className="nav-hamburger"
+            aria-label="Close menu"
+            aria-expanded={menuOpen}
+            onClick={closeMenu}
+          >
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+          </button>
+        </div>
+
+        {/* Top zigzag */}
+        <div className="menu-zz"><ZigzagBand color="#D4A017" /><ZigzagBand color="#E8601C" flip /></div>
+
+        {/* Nav links */}
+        <nav className="menu-overlay-links" aria-label="Mobile navigation">
+          {t.nav.map((l, i) => (
+            <a key={l} href={`#${anchors[i]}`} className="menu-overlay-link" onClick={closeMenu}>{l}</a>
+          ))}
+        </nav>
+
+        {/* Bottom zigzag */}
+        <div className="menu-zz"><ZigzagBand color="#2A9B7A" flip /><ZigzagBand color="#C2321A" /></div>
+
+        {/* Theme + language controls */}
+        <div className="menu-overlay-footer">
+          <div className="menu-overlay-controls" role="group" aria-label="Theme and language">
+            <button className={`menu-overlay-pill${theme === 'night' ? ' active' : ''}`} onClick={() => onTheme('night')} aria-pressed={theme === 'night'}>
+              {lang === 'es' ? 'Noche' : 'Night'}
+            </button>
+            <button className={`menu-overlay-pill${theme === 'day' ? ' active' : ''}`} onClick={() => onTheme('day')} aria-pressed={theme === 'day'}>
+              {lang === 'es' ? 'Día' : 'Day'}
+            </button>
+            <div className="menu-overlay-divider" aria-hidden="true" />
+            <button className={`menu-overlay-pill${lang === 'es' ? ' active' : ''}`} onClick={() => onLang('es')} aria-pressed={lang === 'es'}>ES</button>
+            <button className={`menu-overlay-pill${lang === 'en' ? ' active' : ''}`} onClick={() => onLang('en')} aria-pressed={lang === 'en'}>EN</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Hero ──────────────────────────────────────────────────────────
+function Hero({ t }) {
+  return (
+    <section className="hero" id="top" aria-label="Hero">
+      <Particles />
+      <div className="hero-content">
+        <span className="hero-los" aria-hidden="true">Los</span>
+        <span className="hero-candela">CANDELA</span>
+        <div className="hero-sub">{t.heroSub}</div>
+        <div className="hero-location">{t.heroLocation}</div>
+        <div className="hero-cta-group">
+          <a href="#shows" className="btn btn-primary">{t.heroCta1}</a>
+          <a href="#about" className="btn btn-outline">{t.heroCta2}</a>
+        </div>
+      </div>
+      <div style={{ position:'absolute', bottom:0, width:'100%' }} aria-hidden="true">
+        <ZigzagBand color="#D4A017" />
+        <ZigzagBand color="#E8601C" />
+        <ZigzagBand color="#2A9B7A" flip />
+      </div>
+    </section>
+  );
+}
+
+// ── About ─────────────────────────────────────────────────────────
+function About({ t }) {
+  return (
+    <section id="about" style={{ background:'var(--bg)' }}>
+      <div className="max-w">
+        <div className="section-label">{t.aboutLabel}</div>
+        <h2 className="section-title reveal">{t.aboutTitle[0]}<br /><span>{t.aboutTitle[1]}</span></h2>
+        <div className="about-grid">
+          <div className="about-text reveal">
+            <p dangerouslySetInnerHTML={{ __html: t.aboutP1 }} />
+            <p dangerouslySetInnerHTML={{ __html: t.aboutP2 }} />
+            <p>{t.aboutP3}</p>
+            <div style={{ marginTop:'2rem', display:'flex', gap:'2rem' }}>
+              {t.stats.map(([n, l]) => (
+                <div key={l}>
+                  <div style={{ fontFamily:"'Bebas Neue', sans-serif", fontSize:'2.5rem', color:'var(--gold)', lineHeight:1 }} aria-label={`${n} ${l}`}>{n}</div>
+                  <div style={{ fontSize:'0.7rem', letterSpacing:'0.15em', textTransform:'uppercase', color:'var(--muted)', marginTop:'0.2rem' }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="about-visual reveal" aria-hidden="true">
+            <div style={{ width:'260px', height:'260px', animation:'spin-slow 25s linear infinite' }}><SunGraphic /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Shows ─────────────────────────────────────────────────────────
+const SHOWS = [
+  { date:'17', month:'MAY', venue:'The Winston', location:'Hobart, TAS', desc:{ es:'Con: Grupo Celeste + DJs', en:'With: Grupo Celeste + DJs' }, tag:'tickets' },
+  { date:'31', month:'MAY', venue:'Brisbane Hotel', location:'Hobart, TAS', desc:{ es:'Noche de Chicha — puerta abierta', en:'Chicha Night — free entry' }, tag:'tickets' },
+  { date:'14', month:'JUN', venue:'Salamanca Arts Centre', location:'Hobart, TAS', desc:{ es:'Midwinter Fiesta', en:'Midwinter Fiesta' }, tag:'tickets' },
+  { date:'28', month:'JUN', venue:'The Homestead', location:'Longley, TAS', desc:{ es:'Festival de Invierno — outdoor', en:'Winter Festival — outdoor' }, tag:'sold' },
+  { date:'19', month:'JUL', venue:'Republic Bar', location:'Hobart, TAS', desc:{ es:'Late night session', en:'Late night session' }, tag:'tickets' },
+  { date:'02', month:'AGO', venue:'MONA FOMA Stage', location:'Hobart, TAS', desc:{ es:'Festival principal', en:'Main festival stage' }, tag:'tickets' },
+];
+
+function Shows({ t, lang }) {
+  const [hovered, setHovered] = useState(null);
+  return (
+    <section id="shows" className="shows-bg">
+      <div style={{ position:'absolute', top:0, width:'100%' }} aria-hidden="true">
+        <ZigzagBand color="#C2321A" />
+        <ZigzagBand color="#8B3FA8" flip />
+      </div>
+      <div className="max-w" style={{ paddingTop:'2rem' }}>
+        <div className="section-label">{t.showsLabel}</div>
+        <h2 className="section-title reveal">{t.showsTitle[0]}<br /><span>{t.showsTitle[1]}</span></h2>
+        <div className="shows-grid" role="list">
+          {SHOWS.map((s, i) => (
+            <div key={i} className="show-row reveal" role="listitem" tabIndex="0"
+              onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)}
+              style={{ borderBottomColor: hovered === i ? 'rgba(212,160,23,0.3)' : undefined }}>
+              <div className="show-date">{s.date}<span>{s.month} 2026</span></div>
+              <div className="show-info">
+                <h3>{s.venue}</h3>
+                <p>{s.location} · {s.desc[lang]}</p>
+              </div>
+              <div className={`show-tag ${s.tag === 'sold' ? 'tag-sold' : 'tag-tickets'}`} aria-label={s.tag === 'sold' ? t.tagSold : t.tagTickets}>
+                {s.tag === 'sold' ? t.tagSold : t.tagTickets}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ position:'absolute', bottom:0, width:'100%' }} aria-hidden="true">
+        <ZigzagBand color="#2A9B7A" />
+        <ZigzagBand color="#D4A017" flip />
+      </div>
+    </section>
+  );
+}
+
+// ── Wave Player ────────────────────────────────────────────────────
+function WavePlayer({ t }) {
+  const [playing, setPlaying] = useState(false);
+  const [timeStr, setTimeStr] = useState('0:00');
+  const rafRef = useRef(null);
+  const startRef = useRef(null);
+  const progressRef = useRef(0);
+  const barsRef = useRef(null);
+  const lastTimeRef = useRef(0);
+
+  const bars = useMemo(() =>
+    Array.from({length: 60}, (_, i) => 8 + Math.abs(Math.sin(i * 0.8)) * 40 + Math.abs(Math.sin(i * 1.3)) * 20),
+    []
+  );
+
+  useEffect(() => {
+    if (playing) {
+      const step = ts => {
+        if (!startRef.current) startRef.current = ts - progressRef.current * 180000;
+        const p = ((ts - startRef.current) % 180000) / 180000;
+        progressRef.current = p;
+        if (barsRef.current) {
+          const barEls = barsRef.current.children;
+          const n = barEls.length;
+          for (let i = 0; i < n; i++) {
+            barEls[i].style.background = i / n < p
+              ? 'linear-gradient(180deg,var(--gold),var(--orange))'
+              : 'rgba(240,230,200,0.12)';
+          }
+        }
+        if (ts - lastTimeRef.current > 250) {
+          lastTimeRef.current = ts;
+          const min = Math.floor(p * 3);
+          const sec = String(Math.floor((p * 180) % 60)).padStart(2, '0');
+          setTimeStr(`${min}:${sec}`);
+        }
+        rafRef.current = requestAnimationFrame(step);
+      };
+      rafRef.current = requestAnimationFrame(step);
+    } else {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      startRef.current = null;
+    }
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [playing]);
+
+  return (
+    <div className="reveal" style={{ marginTop:'4rem', background:'var(--dark2)', padding:'2rem', display:'flex', flexDirection:'column', gap:'1.2rem' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
+        <button
+          onClick={() => setPlaying(p => !p)}
+          aria-label={playing ? 'Pause' : 'Play'}
+          style={{
+            width:52, height:52, borderRadius:'50%', border:'none', cursor:'pointer',
+            background: playing ? 'linear-gradient(135deg,var(--red),var(--orange))' : 'linear-gradient(135deg,var(--gold),var(--orange))',
+            color:'#0D0904', fontSize:'1.2rem', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+            transition:'background 0.2s',
+          }}>
+          {playing ? (
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="2" y="2" width="5" height="14" rx="1"/><rect x="11" y="2" width="5" height="14" rx="1"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><path d="M4 2l12 7-12 7z"/></svg>
+          )}
+        </button>
+        <div>
+          <div style={{ fontFamily:"'Bebas Neue', sans-serif", fontSize:'1.1rem', letterSpacing:'0.05em', color:'var(--cream)' }}>{t.playerTitle}</div>
+          <div style={{ fontSize:'0.72rem', color:'var(--muted)', letterSpacing:'0.1em' }}>
+            {timeStr} / 3:00
+          </div>
+        </div>
+      </div>
+      <div ref={barsRef} style={{ display:'flex', alignItems:'center', gap:'2px', height:'60px' }} aria-hidden="true">
+        {bars.map((h, i) => (
+          <div key={i} style={{ flex:1, height:`${h}px`, background:'rgba(240,230,200,0.12)', borderRadius:'2px' }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Sound ─────────────────────────────────────────────────────────
+function Sound({ t }) {
+  return (
+    <section id="sound" className="sound-section">
+      <div className="sound-orbs" aria-hidden="true">
+        <div className="orb" style={{ width:400, height:400, background:'var(--purple)', top:'10%', left:'-10%', animationDuration:'9s' }} />
+        <div className="orb" style={{ width:300, height:300, background:'var(--teal)', bottom:'5%', right:'-5%', animationDuration:'11s', animationDelay:'2s' }} />
+        <div className="orb" style={{ width:250, height:250, background:'var(--orange)', top:'40%', left:'40%', animationDuration:'7s', animationDelay:'1s' }} />
+      </div>
+      <div className="max-w sound-content">
+        <div className="section-label">{t.soundLabel}</div>
+        <h2 className="section-title reveal">{t.soundTitle[0]}<br /><span>{t.soundTitle[1]}</span></h2>
+        <div className="sound-grid" style={{ marginTop:'4rem' }}>
+          {t.soundCards.map((c, i) => (
+            <div key={i} className="sound-card reveal" style={{ animationDelay:`${i*0.1}s` }} tabIndex="0">
+              <SoundIcon name={c.icon} style={{
+                width:'44px', height:'44px',
+                marginBottom:'1rem', display:'block', color:'var(--gold)',
+                animation:`float 4s ease-in-out ${i * 0.8}s infinite`,
+              }} />
+              <h3>{c.title}</h3>
+              <p>{c.text}</p>
+            </div>
+          ))}
+        </div>
+        <WavePlayer t={t} />
+      </div>
+    </section>
+  );
+}
+
+// ── Band ──────────────────────────────────────────────────────────
+const MEMBERS = [
+  { initial:'MV', name:'Marcos V.', role:{ es:'Guitarra', en:'Guitar' }, color:'#E8601C' },
+  { initial:'LR', name:'Lucía R.',  role:{ es:'Voz', en:'Vocals' }, color:'#D4A017' },
+  { initial:'JP', name:'Jorge P.',  role:{ es:'Bajo', en:'Bass' }, color:'#2A9B7A' },
+  { initial:'CB', name:'Carlos B.', role:{ es:'Percusión', en:'Percussion' }, color:'#8B3FA8' },
+  { initial:'AS', name:'Ana S.',    role:{ es:'Teclados', en:'Keys' }, color:'#C2321A' },
+  { initial:'FG', name:'Felipe G.', role:{ es:'Congas', en:'Congas' }, color:'#D4A017' },
+];
+
+function Band({ t, lang }) {
+  return (
+    <section id="band" className="members-section">
+      <div className="max-w">
+        <div className="section-label">{t.bandLabel}</div>
+        <h2 className="section-title reveal">{t.bandTitle[0]}<br /><span>{t.bandTitle[1]}</span></h2>
+        <div className="members-grid" style={{ marginTop:'3rem' }} role="list">
+          {MEMBERS.map((m, i) => (
+            <div key={i} className="member-card reveal" style={{ animationDelay:`${i * 0.08}s` }} role="listitem" tabIndex="0">
+              <div className="member-avatar" style={{ background:`${m.color}22`, border:`2px solid ${m.color}44`, color:m.color }} aria-hidden="true">
+                {m.initial}
+              </div>
+              <div className="member-name">{m.name}</div>
+              <div className="member-role">{m.role[lang]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Contact ───────────────────────────────────────────────────────
+function Contact({ t }) {
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name:'', email:'', msg:'' });
+  const inputStyle = {
+    width:'100%', background:'rgba(240,230,200,0.05)',
+    border:'1px solid rgba(240,230,200,0.12)', borderBottom:'2px solid var(--gold)',
+    color:'var(--cream)', padding:'0.9rem 1rem',
+    fontFamily:"'DM Sans', sans-serif", fontSize:'0.95rem', outline:'none', marginBottom:'1rem',
+  };
+  const labelStyle = {
+    display:'block', fontSize:'0.72rem', letterSpacing:'0.15em',
+    textTransform:'uppercase', color:'var(--muted2)', marginBottom:'0.4rem',
+  };
+  return (
+    <section id="contact" className="contact-section">
+      <div className="max-w contact-inner" style={{ maxWidth:600 }}>
+        <div className="section-label">{t.contactLabel}</div>
+        <h2 className="section-title reveal">{t.contactTitle[0]}<br /><span>{t.contactTitle[1]}</span></h2>
+        <p className="reveal" style={{ color:'var(--muted2)', marginTop:'1rem', fontSize:'0.95rem', lineHeight:1.7 }}>{t.contactBody}</p>
+        {sent ? (
+          <div className="reveal" style={{ marginTop:'3rem', padding:'2.5rem', background:'rgba(42,155,122,0.1)', border:'1px solid var(--teal)', textAlign:'center' }} role="alert">
+            <div style={{ fontFamily:"'Bebas Neue', sans-serif", fontSize:'2rem', color:'var(--teal)', letterSpacing:'0.05em' }}>{t.formSuccess}</div>
+            <p style={{ color:'var(--muted2)', marginTop:'0.5rem' }}>{t.formSuccessSub}</p>
+          </div>
+        ) : (
+          <form className="reveal" style={{ marginTop:'3rem', textAlign:'left' }} onSubmit={e => { e.preventDefault(); setSent(true); }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' }}>
+              <div>
+                <label style={labelStyle} htmlFor="contact-name">{t.formName}</label>
+                <input id="contact-name" style={inputStyle} placeholder={t.formName} value={form.name} onChange={e => setForm(f => ({...f, name:e.target.value}))} required />
+              </div>
+              <div>
+                <label style={labelStyle} htmlFor="contact-email">{t.formEmail}</label>
+                <input id="contact-email" style={inputStyle} type="email" placeholder={t.formEmail} value={form.email} onChange={e => setForm(f => ({...f, email:e.target.value}))} required />
+              </div>
+            </div>
+            <label style={labelStyle} htmlFor="contact-msg">{t.formMsg.replace('...','')}</label>
+            <textarea id="contact-msg" style={{ ...inputStyle, height:'140px', resize:'vertical' }} placeholder={t.formMsg} value={form.msg} onChange={e => setForm(f => ({...f, msg:e.target.value}))} required />
+            <button type="submit" className="btn btn-primary" style={{ fontSize:'1rem', width:'100%', textAlign:'center', fontFamily:"'Bebas Neue', sans-serif" }}>{t.formBtn}</button>
+          </form>
+        )}
+        <div style={{ marginTop:'3rem', textAlign:'center' }}>
+          <div style={{ fontSize:'0.7rem', letterSpacing:'0.2em', color:'var(--muted)', textTransform:'uppercase', marginBottom:'1rem' }}>{t.alsoOn}</div>
+          <div style={{ display:'flex', gap:'1.5rem', justifyContent:'center' }} role="list" aria-label="Social links">
+            {['Instagram','Facebook','Spotify','Bandcamp'].map(s => (
+              <span key={s} role="listitem" style={{ fontSize:'0.75rem', letterSpacing:'0.12em', textTransform:'uppercase', color:'var(--muted)', cursor:'pointer', transition:'color 0.2s' }}
+                onMouseEnter={e => e.target.style.color = 'var(--gold)'}
+                onMouseLeave={e => e.target.style.color = 'var(--muted)'}>{s}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────────
+function Footer({ t }) {
+  return (
+    <>
+      <div style={{ background:'var(--bg)' }} aria-hidden="true">
+        <ZigzagBand color="#D4A017" />
+        <ZigzagBand color="#C2321A" flip />
+        <ZigzagBand color="#2A9B7A" />
+      </div>
+      <footer>
+        <div className="footer-logo"><span>Los</span>CANDELA</div>
+        <p>{t.footerSub} · {new Date().getFullYear()}</p>
+      </footer>
+    </>
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────────
+function App() {
+  useCursor();
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const theme = tweaks.theme;
+  const lang = tweaks.lang;
+  const t = COPY[lang];
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [lang]);
+
+  return (
+    <>
+      <Nav t={t} theme={theme} lang={lang} onTheme={v => setTweak('theme', v)} onLang={v => setTweak('lang', v)} />
+      <Hero t={t} />
+      <About t={t} />
+      <Shows t={t} lang={lang} />
+      <Sound t={t} />
+      <Band t={t} lang={lang} />
+      <Contact t={t} />
+      <Footer t={t} />
+
+      <TweaksPanel>
+        <TweakSection label="Tema / Theme">
+          <TweakRadio label="Modo" value={theme} options={['night','day']} onChange={v => setTweak('theme', v)} />
+        </TweakSection>
+        <TweakSection label="Idioma / Language">
+          <TweakRadio label="Idioma" value={lang} options={['es','en']} onChange={v => setTweak('lang', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
