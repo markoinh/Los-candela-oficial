@@ -769,6 +769,10 @@
     nav { padding: 1rem 1.25rem; }
     section { padding: 4rem 1.25rem; }
   }
+  @media (hover: none) {
+    body { cursor: auto; }
+    #cursor, #cursor-ring { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -1268,6 +1272,7 @@ function SoundIcon({ name, style }) {
 // ── Cursor ──────────────────────────────────────────────────
 function useCursor() {
   useEffect(() => {
+    if (window.matchMedia('(hover: none)').matches) return;
     const dot = document.getElementById('cursor');
     const ring = document.getElementById('cursor-ring');
     let mx = 0, my = 0, rx = 0, ry = 0;
