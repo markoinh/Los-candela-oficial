@@ -1339,8 +1339,8 @@ function ZigzagBand({ color = '#D4A017', flip = false }) {
     []
   );
   return (
-    <div className="zz-runner" aria-hidden="true" style={flip ? { transform:'scaleX(-1)' } : undefined}>
-      <div className="zz-runner-inner">
+    <div className="zz-runner" aria-hidden="true">
+      <div className="zz-runner-inner" style={flip ? { animationDirection:'reverse' } : undefined}>
         {[0,1].map(k => (
           <svg key={k} width="2040" height="24" viewBox="0 0 2040 24" fill="none" style={{ display:'block', flexShrink:0 }}>
             <polyline points={pts} stroke={color} strokeWidth="2.5" fill="none" />
@@ -1509,8 +1509,8 @@ function Hero({ t }) {
       </div>
       <div style={{ position:'absolute', bottom:0, width:'100%' }} aria-hidden="true">
         <ZigzagBand color="#D4A017" />
-        <ZigzagBand color="#E8601C" />
-        <ZigzagBand color="#2A9B7A" flip />
+        <ZigzagBand color="#E8601C" flip />
+        <ZigzagBand color="#2A9B7A" />
       </div>
     </section>
   );
